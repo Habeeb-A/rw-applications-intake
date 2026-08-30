@@ -1,0 +1,34 @@
+# -----------------------------------------------------------------------------
+# Netlify configuration.
+#
+# The Next.js runtime (@netlify/plugin-nextjs) is installed automatically by
+# Netlify when it detects Next.js, and it is what turns App Router routes,
+# middleware and Server Actions into Netlify Functions. It is declared here
+# explicitly rather than left to auto-detection so the build is reproducible and
+# the version is visible.
+#
+# Deliberately absent: a `publish` directory. For the Next.js runtime, Netlify
+# manages the publish path itself. Setting `publish = ".next"` — which looks
+# correct, and is what the prototype's static Vite setup needed — produces a
+# deploy that serves the raw build directory and 404s on every route. That is
+# the single most common Next-on-Netlify failure and it is silent.
+# -----------------------------------------------------------------------------
+
+[build]
+  command = "npm run build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  # Pin the Node major so a change to Netlify's default cannot alter the build.
+  NODE_VERSION = "20"
+
+# Belt and braces: this app renders per-user data on every request, so nothing
+# it serves should ever be stored by a shared cache.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
