@@ -1,0 +1,378 @@
+/* ---------------------------------------------------------------------------
+   Plain CSS, no framework.
+
+   The brief asks for a working slice, not a design system, and a dependency
+   like Tailwind would add build surface to a Netlify deployment that the brief
+   already warns can be fiddly. One stylesheet, custom properties, no runtime.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --border: #e2e0da;
+  --border-strong: #cfccc3;
+  --text: #23211d;
+  --text-muted: #6b675e;
+  --accent: #2f5d50;
+  --accent-hover: #264b41;
+  --accent-soft: #e8efec;
+  --danger: #9a3131;
+  --danger-soft: #fbeaea;
+  --focus: #2f5d50;
+
+  --status-pending-bg: #f3f0e6;
+  --status-pending-fg: #6d5f2d;
+  --status-accepted-bg: #e4f0e6;
+  --status-accepted-fg: #2c5f38;
+  --status-rejected-bg: #f7e7e7;
+  --status-rejected-fg: #8a3232;
+  --status-waitlisted-bg: #e9edf5;
+  --status-waitlisted-fg: #3a4d75;
+
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(35, 33, 29, 0.05), 0 4px 12px rgba(35, 33, 29, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #171916;
+    --surface: #1f221f;
+    --border: #33362f;
+    --border-strong: #474b42;
+    --text: #eceae4;
+    --text-muted: #a3a094;
+    --accent: #7fbfa8;
+    --accent-hover: #96cfb9;
+    --accent-soft: #24322c;
+    --danger: #e08b8b;
+    --danger-soft: #33211f;
+    --focus: #7fbfa8;
+
+    --status-pending-bg: #33301f;
+    --status-pending-fg: #d9cd9a;
+    --status-accepted-bg: #1f3325;
+    --status-accepted-fg: #a3d5ae;
+    --status-rejected-bg: #33211f;
+    --status-rejected-fg: #e3a8a8;
+    --status-waitlisted-bg: #212938;
+    --status-waitlisted-fg: #adbde0;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); }
+
+/* --- layout -------------------------------------------------------------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.site-header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.brand span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.session-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+main.narrow { max-width: 620px; }
+
+h1 {
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  margin: 0 0 6px;
+}
+
+.page-intro {
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+/* --- surfaces ------------------------------------------------------------ */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.card + .card { margin-top: 20px; }
+
+/* --- forms --------------------------------------------------------------- */
+
+.field { margin-bottom: 18px; }
+
+label {
+  display: block;
+  font-weight: 550;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.hint {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+}
+
+textarea { min-height: 130px; resize: vertical; }
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.radio-option input { margin: 0; accent-color: var(--accent); }
+
+.field-error {
+  color: var(--danger);
+  font-size: 12.5px;
+  margin-top: 5px;
+}
+
+/* --- buttons ------------------------------------------------------------- */
+
+button, .button {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  padding: 9px 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  display: inline-block;
+}
+
+@media (prefers-color-scheme: dark) {
+  button, .button { color: #12211c; }
+}
+
+button:hover, .button:hover { background: var(--accent-hover); }
+
+button:disabled { opacity: 0.55; cursor: progress; }
+
+button.secondary, .button.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+button.secondary:hover, .button.secondary:hover { background: var(--bg); }
+
+button.linkish {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 0;
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: underline;
+}
+
+button.linkish:hover { background: none; color: var(--text); }
+
+/* --- messages ------------------------------------------------------------ */
+
+.notice {
+  border-radius: 6px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+}
+
+.notice.info { background: var(--accent-soft); border-color: var(--accent); }
+.notice.error { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+
+/* --- status pills -------------------------------------------------------- */
+
+.status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.status-pending { background: var(--status-pending-bg); color: var(--status-pending-fg); }
+.status-accepted { background: var(--status-accepted-bg); color: var(--status-accepted-fg); }
+.status-rejected { background: var(--status-rejected-bg); color: var(--status-rejected-fg); }
+.status-waitlisted { background: var(--status-waitlisted-bg); color: var(--status-waitlisted-fg); }
+
+/* --- tables -------------------------------------------------------------- */
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  min-width: 860px;
+}
+
+th, td {
+  text-align: left;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+  background: var(--bg);
+  white-space: nowrap;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+td.motivation {
+  max-width: 320px;
+  color: var(--text-muted);
+}
+
+td.nowrap { white-space: nowrap; }
+
+/* --- summary strip ------------------------------------------------------- */
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.summary-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  min-width: 104px;
+}
+
+.summary-value { font-size: 20px; font-weight: 600; }
+.summary-label { font-size: 12px; color: var(--text-muted); }
+
+/* --- definition list ----------------------------------------------------- */
+
+dl.detail { margin: 0; display: grid; grid-template-columns: 170px 1fr; gap: 10px 20px; }
+dl.detail dt { color: var(--text-muted); font-size: 13px; }
+dl.detail dd { margin: 0; font-size: 14px; white-space: pre-wrap; }
+
+@media (max-width: 560px) {
+  dl.detail { grid-template-columns: 1fr; gap: 2px 0; }
+  dl.detail dd { margin-bottom: 12px; }
+}
+
+.muted { color: var(--text-muted); }
+.small { font-size: 12.5px; }
+
+/* Visible to screen readers, not on screen. Used for labels on controls whose
+   purpose is clear visually from the surrounding table header. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
