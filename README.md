@@ -54,6 +54,7 @@ Fill in from **Project Settings → API**:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `anon` `public` key |
 | `SUPABASE_SERVICE_ROLE_KEY` | `service_role` key — **local only**, never deployed |
 | `SEED_STAFF_PASSWORD` / `SEED_APPLICANT_PASSWORD` | any values you choose |
+| `NEXT_PUBLIC_DEMO_PASSWORD` | optional; set it to the same value to make the login page's demo cards one-click |
 
 The service-role key carries `BYPASSRLS`. It is used only by `scripts/seed.ts` and `scripts/verify-acceptance.ts`, both of which run on your machine. Do not add it to Netlify.
 
@@ -120,6 +121,35 @@ npm run verify -- --url https://<your-site>.netlify.app
 **`npm run verify`** checks each numbered acceptance criterion against a live deployment, including raw `fetch` calls to the Supabase REST API with only the anon key — the same request an outsider would make. It never uses the service-role key.
 
 Both exit non-zero on failure.
+
+---
+
+## Interface
+
+The visual language is taken from the existing CBT Lab click-dummy at
+`rw-cbt-lab-pilot.netlify.app` — the persistent left rail with a rounded brand
+block and pill nav, the dark "command" hero card with a lime accent rule, white
+cards with uppercase micro-labels, deep-teal primary buttons. The intent is that
+this slice reads as part of the same product rather than a separate
+contractor's build, and that the design work carries over if it does.
+
+Three deliberate departures:
+
+- **No role switcher.** The click-dummy has a P / F / S control because it keeps
+  its role in local storage, where switching is free. Here the role lives in
+  `profiles` and every policy reads it, so a switcher would either be a lie or a
+  privilege-escalation hole. The rail shows the role as a badge instead.
+- **No webfont.** `next/font/google` fetches the font at *build* time, which
+  makes every deploy fail-able for a reason unrelated to this code. On a
+  deployment target the brief already flags as fiddly that is a bad trade, so
+  the app uses a geometric system stack. A real build would self-host the woff2
+  in `/public`.
+- **One-click demo accounts on the login page**, mirroring the click-dummy's
+  "choose a demo account" pattern, because deliverable 1 asks for test
+  credentials and a reviewer should not have to retype them. The cards fill in
+  the password only when `NEXT_PUBLIC_DEMO_PASSWORD` is set — off unless
+  switched on, and not something that would exist in a build serving real
+  applicants.
 
 ---
 

@@ -1,168 +1,417 @@
 /* ---------------------------------------------------------------------------
-   Plain CSS, no framework.
+   Design language taken from the existing CBT Lab click-dummy
+   (rw-cbt-lab-pilot.netlify.app), so this slice looks like it belongs in the
+   same product rather than like a separate contractor's build:
 
-   The brief asks for a working slice, not a design system, and a dependency
-   like Tailwind would add build surface to a Netlify deployment that the brief
-   already warns can be fiddly. One stylesheet, custom properties, no runtime.
+     - persistent left rail with a rounded brand block and pill nav items
+     - a dark "command" hero card with a lime accent rule, on warm off-white
+     - white cards with soft borders and generous radii
+     - uppercase, letter-spaced micro-labels above every section
+     - deep teal primary buttons; lime for the single most-wanted action
+
+   Plain CSS with custom properties. No framework: the brief warns about
+   Netlify/Next deployment friction, and a build-time CSS pipeline is one more
+   thing that can break in a deploy I only get one shot at.
    --------------------------------------------------------------------------- */
 
 :root {
-  --bg: #f7f7f5;
-  --surface: #ffffff;
-  --border: #e2e0da;
-  --border-strong: #cfccc3;
-  --text: #23211d;
-  --text-muted: #6b675e;
-  --accent: #2f5d50;
-  --accent-hover: #264b41;
-  --accent-soft: #e8efec;
-  --danger: #9a3131;
-  --danger-soft: #fbeaea;
-  --focus: #2f5d50;
+  /* Surfaces */
+  --paper:        #F7F7F3;
+  --surface:      #FFFFFF;
+  --surface-2:    #F1F2ED;
+  --border:       #E4E6DF;
+  --border-strong:#D2D5CB;
 
-  --status-pending-bg: #f3f0e6;
-  --status-pending-fg: #6d5f2d;
-  --status-accepted-bg: #e4f0e6;
-  --status-accepted-fg: #2c5f38;
-  --status-rejected-bg: #f7e7e7;
-  --status-rejected-fg: #8a3232;
-  --status-waitlisted-bg: #e9edf5;
-  --status-waitlisted-fg: #3a4d75;
+  /* Ink */
+  --text:         #131A17;
+  --text-mid:     #47544E;
+  --text-soft:    #6F7B75;
 
-  --radius: 8px;
-  --shadow: 0 1px 2px rgba(35, 33, 29, 0.05), 0 4px 12px rgba(35, 33, 29, 0.04);
+  /* Brand */
+  --teal:         #0C5545;
+  --teal-hover:   #0A4436;
+  --teal-bright:  #12806A;
+  --teal-soft:    #E4EFEB;
+  --lime:         #C7F751;
+  --lime-hover:   #B9EE3C;
+  --lime-ink:     #14261A;
+
+  /* Dark hero card */
+  --hero-bg:      #101815;
+  --hero-bg-2:    #16211C;
+  --hero-text:    #F2F5EF;
+  --hero-soft:    #9FB0A8;
+
+  /* Semantic */
+  --danger:       #A03B2C;
+  --danger-soft:  #FBEBE7;
+  --warn-soft:    #FDF3E3;
+
+  /* Status pills */
+  --st-pending-bg:    #F3F0E2;  --st-pending-fg:    #6B5D22;
+  --st-accepted-bg:   #DFF0E4;  --st-accepted-fg:   #1F5C39;
+  --st-rejected-bg:   #F8E6E2;  --st-rejected-fg:   #8C382A;
+  --st-waitlisted-bg: #E6EBF4;  --st-waitlisted-fg: #35496F;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+
+  --shadow-sm: 0 1px 2px rgba(19, 26, 23, 0.04);
+  --shadow-md: 0 1px 3px rgba(19, 26, 23, 0.05), 0 8px 24px rgba(19, 26, 23, 0.05);
 }
 
+/* The click-dummy is light-only. This slice keeps a dark palette anyway —
+   it costs a few tokens and a reviewer on a dark-set laptop gets a readable
+   page instead of a white flash. Every colour below is redefined; none is
+   left to inherit. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #171916;
-    --surface: #1f221f;
-    --border: #33362f;
-    --border-strong: #474b42;
-    --text: #eceae4;
-    --text-muted: #a3a094;
-    --accent: #7fbfa8;
-    --accent-hover: #96cfb9;
-    --accent-soft: #24322c;
-    --danger: #e08b8b;
-    --danger-soft: #33211f;
-    --focus: #7fbfa8;
+  :root:not([data-theme="light"]) {
+    --paper:        #0D110F;
+    --surface:      #141A17;
+    --surface-2:    #1B2320;
+    --border:       #28322D;
+    --border-strong:#3A4741;
 
-    --status-pending-bg: #33301f;
-    --status-pending-fg: #d9cd9a;
-    --status-accepted-bg: #1f3325;
-    --status-accepted-fg: #a3d5ae;
-    --status-rejected-bg: #33211f;
-    --status-rejected-fg: #e3a8a8;
-    --status-waitlisted-bg: #212938;
-    --status-waitlisted-fg: #adbde0;
+    --text:         #E9EEE9;
+    --text-mid:     #A9B6B0;
+    --text-soft:    #7E8C86;
+
+    --teal:         #3FA88E;
+    --teal-hover:   #55BFA4;
+    --teal-bright:  #4FC0A4;
+    --teal-soft:    #16302A;
+
+    --hero-bg:      #0A100D;
+    --hero-bg-2:    #101815;
+    --hero-text:    #F2F5EF;
+    --hero-soft:    #93A49C;
+
+    --danger:       #E08D79;
+    --danger-soft:  #2C1A15;
+    --warn-soft:    #2A2213;
+
+    --st-pending-bg:    #32301E;  --st-pending-fg:    #DACE9C;
+    --st-accepted-bg:   #1D3226;  --st-accepted-fg:   #9FD3AD;
+    --st-rejected-bg:   #33201B;  --st-rejected-fg:   #E4A796;
+    --st-waitlisted-bg: #1F2839;  --st-waitlisted-fg: #AFBEDE;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.28);
   }
 }
 
 * { box-sizing: border-box; }
 
-html, body {
-  margin: 0;
-  padding: 0;
-}
+html, body { margin: 0; padding: 0; }
 
 body {
-  background: var(--bg);
+  background: var(--paper);
   color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  /* Geometric-leaning system stack. Avoids a build-time font fetch (see the
+     note in layout.tsx) while landing close to the click-dummy's typography:
+     Avenir Next on macOS, Segoe UI Variable on Windows 11, Roboto on Android. */
+  font-family: "Avenir Next", "Segoe UI Variable Display", "Segoe UI", ui-sans-serif,
+    system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 15px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-a { color: var(--accent); }
+a { color: var(--teal-bright); }
 
-/* --- layout -------------------------------------------------------------- */
+/* ===========================================================================
+   Shell: fixed left rail + scrolling main, mirroring the click-dummy
+   =========================================================================== */
 
-.site-header {
-  border-bottom: 1px solid var(--border);
+.shell {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.rail {
+  border-right: 1px solid var(--border);
   background: var(--surface);
-}
-
-.site-header-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 14px 24px;
+  padding: 20px 16px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  flex-direction: column;
+  gap: 22px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
 .brand {
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  color: var(--text);
-}
-
-.brand span {
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-.session-info {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 6px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-md);
+  background: linear-gradient(150deg, var(--lime) 0%, var(--teal-bright) 100%);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--lime-ink);
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+}
+
+.brand-name { display: block; font-weight: 700; font-size: 15px; letter-spacing: -0.015em; line-height: 1.25; }
+.brand-sub  { display: block; font-size: 12px; color: var(--text-soft); line-height: 1.3; }
+
+.rail-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+
+.rail-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.008em;
+}
+
+.rail-link:hover { background: var(--surface-2); }
+
+.rail-link[aria-current="page"] {
+  background: var(--teal);
+  color: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rail-link[aria-current="page"] {
+    background: var(--teal-soft);
+    color: var(--teal-hover);
+  }
+}
+
+.rail-link svg { flex-shrink: 0; }
+
+.rail-foot {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.who { display: flex; align-items: center; gap: 11px; }
+
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-size: 12.5px; font-weight: 700;
+  color: var(--text-mid);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.who { min-width: 0; }
+.who > span:last-child { min-width: 0; }
+
+.who-name {
+  display: block;
+  font-weight: 600; font-size: 13px; line-height: 1.25;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.who-role { display: block; font-size: 11.5px; color: var(--text-soft); }
+
+.role-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  align-self: flex-start;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px;
+  background: var(--teal-soft); color: var(--teal-bright);
+}
+
+.signout-btn {
+  width: 100%;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-mid);
+  border: 1px solid var(--border-strong);
   font-size: 13px;
-  color: var(--text-muted);
+  padding: 9px 12px;
+}
+.signout-btn:hover { background: var(--surface-2); color: var(--text); }
+
+/* Mobile: rail collapses to a top bar */
+@media (max-width: 860px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail {
+    position: static; height: auto;
+    flex-direction: row; align-items: center; flex-wrap: wrap;
+    gap: 14px; border-right: none; border-bottom: 1px solid var(--border);
+  }
+  .rail-nav { flex-direction: row; flex: 1 1 100%; order: 3; }
+  .rail-foot { border-top: none; padding-top: 0; flex-direction: row; align-items: center; margin-left: auto; }
+  .signout-btn { width: auto; }
+  .who-name { word-break: normal; }
 }
 
-main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 32px 24px 64px;
-}
+/* ===========================================================================
+   Main column
+   =========================================================================== */
 
-main.narrow { max-width: 620px; }
+.main { padding: 34px 40px 80px; max-width: 1180px; }
+.main.narrow { max-width: 760px; }
+
+@media (max-width: 860px) { .main { padding: 24px 20px 64px; } }
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--teal-bright);
+  margin: 0 0 8px;
+}
 
 h1 {
-  font-size: 22px;
-  letter-spacing: -0.015em;
-  margin: 0 0 6px;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin: 0 0 8px;
+  text-wrap: balance;
 }
 
-.page-intro {
-  color: var(--text-muted);
-  margin: 0 0 24px;
+h2 {
+  font-size: 20px; font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
 }
 
-/* --- surfaces ------------------------------------------------------------ */
+.page-intro { color: var(--text-mid); margin: 0 0 28px; max-width: 62ch; font-size: 15.5px; }
+
+/* ===========================================================================
+   Hero "command" card — the dark block from the click-dummy
+   =========================================================================== */
+
+.hero {
+  background: linear-gradient(155deg, var(--hero-bg) 0%, var(--hero-bg-2) 100%);
+  border-radius: var(--r-xl);
+  border-left: 4px solid var(--lime);
+  padding: 30px 34px 32px;
+  color: var(--hero-text);
+  margin-bottom: 26px;
+  box-shadow: var(--shadow-md);
+}
+
+.hero-eyebrow {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--lime);
+  margin: 0 0 12px;
+}
+
+.hero h1 { color: var(--hero-text); margin-bottom: 14px; }
+
+.hero-lede { color: var(--hero-soft); margin: 0 0 24px; max-width: 58ch; font-size: 15.5px; }
+
+.hero-rule { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0 0 20px; }
+
+.hero-meta {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 14px;
+  margin-bottom: 12px;
+}
+.hero-meta strong { color: var(--lime); font-size: 15px; font-weight: 700; }
+.hero-meta span { color: var(--hero-soft); font-size: 14px; }
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 4px; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12.5px; font-weight: 600;
+  padding: 7px 14px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  color: var(--hero-soft);
+}
+.chip.lit { border-color: var(--lime); color: var(--lime); }
+
+/* ===========================================================================
+   Cards, stat tiles
+   =========================================================================== */
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: var(--shadow);
+  border-radius: var(--r-lg);
+  padding: 26px 28px;
+  box-shadow: var(--shadow-sm);
 }
-
 .card + .card { margin-top: 20px; }
 
-/* --- forms --------------------------------------------------------------- */
+.card-label {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--text-soft);
+  margin: 0 0 6px;
+}
 
-.field { margin-bottom: 18px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 18px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.tile-k {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-soft); display: block; margin-bottom: 6px;
+}
+.tile-v {
+  font-size: 30px; font-weight: 700; line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+.tile-c { font-size: 12.5px; color: var(--text-soft); margin-top: 5px; }
+.tile.accent { border-color: var(--teal); }
+
+/* ===========================================================================
+   Forms
+   =========================================================================== */
+
+.field { margin-bottom: 20px; }
 
 label {
   display: block;
-  font-weight: 550;
-  font-size: 13px;
-  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: -0.005em;
+  margin-bottom: 7px;
 }
 
-.hint {
-  font-weight: 400;
-  color: var(--text-muted);
-  font-size: 12px;
-  margin-top: 4px;
-}
+.hint { font-weight: 400; color: var(--text-soft); font-size: 12.5px; margin: 5px 0 0; }
 
 input[type="text"],
 input[type="email"],
@@ -170,209 +419,261 @@ input[type="password"],
 select,
 textarea {
   width: 100%;
-  padding: 9px 11px;
+  padding: 11px 13px;
   font: inherit;
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border-strong);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
 }
 
-textarea { min-height: 130px; resize: vertical; }
+input::placeholder, textarea::placeholder { color: var(--text-soft); }
 
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 1px;
+textarea { min-height: 140px; resize: vertical; line-height: 1.55; }
+
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+button:focus-visible, a:focus-visible, .demo-card:focus-visible {
+  outline: 2px solid var(--teal-bright);
+  outline-offset: 2px;
 }
+
+fieldset { border: none; padding: 0; margin: 0 0 20px; }
+legend { padding: 0; font-weight: 600; font-size: 13.5px; margin-bottom: 7px; }
 
 .radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: flex; flex-direction: column; gap: 2px;
   border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  padding: 12px;
+  border-radius: var(--r-sm);
+  padding: 6px;
 }
 
 .radio-option {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 14px;
-  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14.5px; cursor: pointer;
+  padding: 9px 10px; border-radius: 6px;
 }
+.radio-option:hover { background: var(--surface-2); }
+.radio-option input { margin: 0; accent-color: var(--teal); width: 16px; height: 16px; }
 
-.radio-option input { margin: 0; accent-color: var(--accent); }
+.field-error { color: var(--danger); font-size: 13px; margin: 6px 0 0; font-weight: 500; }
 
-.field-error {
-  color: var(--danger);
-  font-size: 12.5px;
-  margin-top: 5px;
-}
-
-/* --- buttons ------------------------------------------------------------- */
+/* ===========================================================================
+   Buttons
+   =========================================================================== */
 
 button, .button {
   font: inherit;
-  font-size: 14px;
-  font-weight: 550;
-  padding: 9px 16px;
-  border-radius: 6px;
+  font-size: 14.5px;
+  font-weight: 650;
+  letter-spacing: -0.008em;
+  padding: 12px 22px;
+  border-radius: var(--r-sm);
   border: 1px solid transparent;
   cursor: pointer;
-  background: var(--accent);
+  background: var(--teal);
   color: #fff;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
 }
-
-@media (prefers-color-scheme: dark) {
-  button, .button { color: #12211c; }
-}
-
-button:hover, .button:hover { background: var(--accent-hover); }
-
+button:hover, .button:hover { background: var(--teal-hover); }
 button:disabled { opacity: 0.55; cursor: progress; }
 
-button.secondary, .button.secondary {
-  background: transparent;
-  color: var(--text);
+.btn-lime { background: var(--lime); color: var(--lime-ink); }
+.btn-lime:hover { background: var(--lime-hover); }
+
+.btn-ghost {
+  background: transparent; color: var(--text);
   border-color: var(--border-strong);
 }
+.btn-ghost:hover { background: var(--surface-2); }
 
-button.secondary:hover, .button.secondary:hover { background: var(--bg); }
+.btn-hero-ghost {
+  background: transparent; color: var(--hero-text);
+  border-color: rgba(255,255,255,0.22);
+}
+.btn-hero-ghost:hover { background: rgba(255,255,255,0.07); }
 
 button.linkish {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  padding: 0;
-  font-size: 13px;
-  font-weight: 400;
-  text-decoration: underline;
+  background: none; border: none; color: var(--text-soft);
+  padding: 0; font-size: 13.5px; font-weight: 500;
+  text-decoration: underline; text-underline-offset: 2px;
+  display: inline;
 }
-
 button.linkish:hover { background: none; color: var(--text); }
 
-/* --- messages ------------------------------------------------------------ */
+/* ===========================================================================
+   Notices
+   =========================================================================== */
 
 .notice {
-  border-radius: 6px;
-  padding: 11px 14px;
-  font-size: 13.5px;
-  margin-bottom: 20px;
+  border-radius: var(--r-md);
+  padding: 14px 17px;
+  font-size: 14px;
+  margin-bottom: 22px;
   border: 1px solid transparent;
+  display: flex; gap: 11px; align-items: flex-start;
 }
-
-.notice.info { background: var(--accent-soft); border-color: var(--accent); }
+.notice.info  { background: var(--teal-soft); border-color: var(--teal-bright); color: var(--text); }
 .notice.error { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+.notice p { margin: 0; }
 
-/* --- status pills -------------------------------------------------------- */
+/* ===========================================================================
+   Status pills
+   =========================================================================== */
 
 .status {
-  display: inline-block;
-  padding: 2px 10px;
+  display: inline-flex; align-items: center;
+  padding: 5px 13px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
+.status-pending    { background: var(--st-pending-bg);    color: var(--st-pending-fg); }
+.status-accepted   { background: var(--st-accepted-bg);   color: var(--st-accepted-fg); }
+.status-rejected   { background: var(--st-rejected-bg);   color: var(--st-rejected-fg); }
+.status-waitlisted { background: var(--st-waitlisted-bg); color: var(--st-waitlisted-fg); }
 
-.status-pending { background: var(--status-pending-bg); color: var(--status-pending-fg); }
-.status-accepted { background: var(--status-accepted-bg); color: var(--status-accepted-fg); }
-.status-rejected { background: var(--status-rejected-bg); color: var(--status-rejected-fg); }
-.status-waitlisted { background: var(--status-waitlisted-bg); color: var(--status-waitlisted-fg); }
+/* ===========================================================================
+   Table
+   =========================================================================== */
 
-/* --- tables -------------------------------------------------------------- */
-
-.table-scroll {
+.table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r-lg);
   background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-  min-width: 860px;
-}
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 900px; }
 
-th, td {
+th {
   text-align: left;
-  padding: 11px 14px;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-soft);
+  padding: 14px 18px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 15px 18px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
-
-th {
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  font-weight: 600;
-  background: var(--bg);
-  white-space: nowrap;
-}
-
 tbody tr:last-child td { border-bottom: none; }
-
-td.motivation {
-  max-width: 320px;
-  color: var(--text-muted);
-}
+tbody tr:hover { background: var(--surface-2); }
 
 td.nowrap { white-space: nowrap; }
 
-/* --- summary strip ------------------------------------------------------- */
+/* The status control must fit its longest label ("Waitlisted") rather than
+   shrink to the column. Without this the reviewer reads "Waitlis". */
+td select { min-width: 140px; padding: 9px 11px; }
+td.motivation { max-width: 330px; color: var(--text-mid); font-size: 13.5px; }
 
-.summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
+.person-name { font-weight: 650; letter-spacing: -0.01em; }
+.person-mail { font-size: 12.5px; color: var(--text-soft); }
+
+/* ===========================================================================
+   Detail list (applicant's own application)
+   =========================================================================== */
+
+dl.detail { margin: 0; display: grid; grid-template-columns: 176px 1fr; gap: 15px 24px; }
+dl.detail dt {
+  color: var(--text-soft); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; padding-top: 2px;
+}
+dl.detail dd { margin: 0; font-size: 15px; white-space: pre-wrap; }
+
+@media (max-width: 620px) {
+  dl.detail { grid-template-columns: 1fr; gap: 4px; }
+  dl.detail dd { margin-bottom: 16px; }
 }
 
-.summary-item {
+/* ===========================================================================
+   Login page (standalone — no rail)
+   =========================================================================== */
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+  background: var(--paper);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 720px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px 16px;
-  min-width: 104px;
+  border-radius: var(--r-xl);
+  padding: 38px 40px 40px;
+  box-shadow: var(--shadow-md);
 }
 
-.summary-value { font-size: 20px; font-weight: 600; }
-.summary-label { font-size: 12px; color: var(--text-muted); }
+@media (max-width: 620px) { .auth-card { padding: 28px 22px 30px; } }
 
-/* --- definition list ----------------------------------------------------- */
+.auth-brand { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
 
-dl.detail { margin: 0; display: grid; grid-template-columns: 170px 1fr; gap: 10px 20px; }
-dl.detail dt { color: var(--text-muted); font-size: 13px; }
-dl.detail dd { margin: 0; font-size: 14px; white-space: pre-wrap; }
+.auth-card h1 { font-size: clamp(26px, 4.6vw, 34px); margin-bottom: 10px; }
 
-@media (max-width: 560px) {
-  dl.detail { grid-template-columns: 1fr; gap: 2px 0; }
-  dl.detail dd { margin-bottom: 12px; }
+.demo-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin: 24px 0 26px;
 }
 
-.muted { color: var(--text-muted); }
+.demo-card {
+  text-align: left;
+  background: var(--hero-bg);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  padding: 18px 19px 20px;
+  cursor: pointer;
+  display: block;
+  color: var(--hero-text);
+  font: inherit;
+}
+.demo-card:hover { border-color: var(--lime); background: var(--hero-bg-2); }
+.demo-card[aria-pressed="true"] { border-color: var(--lime); }
+
+.demo-role {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--lime); display: block; margin-bottom: 9px;
+}
+.demo-name {
+  font-size: 17px; font-weight: 700; letter-spacing: -0.02em;
+  display: block; margin-bottom: 5px; color: var(--hero-text);
+}
+.demo-mail { font-size: 12.5px; color: var(--hero-soft); display: block; word-break: break-all; }
+
+.auth-fields { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end; }
+.auth-fields .field { margin-bottom: 0; }
+
+@media (max-width: 620px) {
+  .auth-fields { grid-template-columns: 1fr; }
+  .auth-fields button { width: 100%; }
+}
+
+.muted { color: var(--text-soft); }
 .small { font-size: 12.5px; }
 
-/* Visible to screen readers, not on screen. Used for labels on controls whose
-   purpose is clear visually from the surrounding table header. */
 .visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
 }

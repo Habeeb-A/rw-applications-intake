@@ -5,18 +5,28 @@ import {
   AVAILABILITY_LABELS,
   STATUS_LABELS,
   type ApplicationRow,
+  type ApplicationStatus,
 } from "@/lib/database.types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
  * The applicant's own view: their application, and its current status.
  *
- * This is the read half of acceptance criterion 4. Worth noticing what is not
- * here: no application id in the URL, no way to ask for a different row. The
- * page reads "the application belonging to whoever is signed in", so there is
- * no parameter to tamper with in the first place. Even if there were, the RLS
- * policy would return nothing for anyone else's row.
+ * This is the read half of acceptance criterion 4. Note what is absent: no
+ * application id in the URL, no query parameter naming a record. The page reads
+ * "the application belonging to whoever is signed in", so there is nothing to
+ * tamper with — and if there were, the RLS policy returns no row for anyone
+ * else's application anyway.
  */
+export const dynamic = "force-dynamic";
+
+const STATUS_COPY: Record<ApplicationStatus, string> = {
+  pending: "Your application is with our review team. We review in batches and will email you when there is a decision.",
+  accepted: "You have a place on the programme. Look out for an email with your group and start date.",
+  rejected: "We are not able to offer you a place on this cohort. You are welcome to apply again for a future one.",
+  waitlisted: "You are on the waiting list. If a place opens up before the cohort starts, we will be in touch.",
+};
+
 export default async function MyApplicationPage({
   searchParams,
 }: {
@@ -32,9 +42,7 @@ export default async function MyApplicationPage({
     .eq("applicant_id", session.userId)
     .maybeSingle();
 
-  if (error) {
-    console.error("Failed to load own application", error);
-  }
+  if (error) console.error("Failed to load own application", error);
 
   const application = data as ApplicationRow | null;
 
@@ -44,32 +52,43 @@ export default async function MyApplicationPage({
   }
 
   return (
-    <main className="narrow">
-      <h1>Your application</h1>
-      <p className="page-intro">
-        Submitted {new Date(application.created_at).toLocaleDateString("en-GB", {
-          day: "numeric", month: "long", year: "numeric",
-        })}
-      </p>
+    <main className="main narrow">
+      <p className="eyebrow">Applicant · CBT Lab</p>
+
+      <div className="hero">
+        <p className="hero-eyebrow">Application status</p>
+        <h1>{STATUS_LABELS[application.status]}</h1>
+        <p className="hero-lede">{STATUS_COPY[application.status]}</p>
+        <hr className="hero-rule" />
+        <div className="chips">
+          <span className="chip lit">
+            Submitted {new Date(application.created_at).toLocaleDateString("en-GB", {
+              day: "numeric", month: "long", year: "numeric",
+            })}
+          </span>
+          <span className="chip">12-week programme</span>
+        </div>
+      </div>
 
       {params.notice === "submitted" ? (
         <div className="notice info">
-          Thank you — your application has been received. We review applications in
-          batches and will be in touch by email.
+          <p>Thank you — your application has been received.</p>
         </div>
       ) : null}
       {params.notice === "already_submitted" ? (
         <div className="notice info">
-          You have already applied. Your existing application is shown below.
+          <p>You have already applied. Your existing application is shown below.</p>
         </div>
       ) : null}
       {params.error === "staff_only" ? (
         <div className="notice error">
-          That page is only available to Rethink Wellbeing staff.
+          <p>That page is only available to Rethink Wellbeing staff.</p>
         </div>
       ) : null}
 
       <div className="card">
+        <p className="card-label">What you told us</p>
+        <h2 style={{ marginBottom: 20 }}>Your answers</h2>
         <dl className="detail">
           <dt>Status</dt>
           <dd>
@@ -98,7 +117,7 @@ export default async function MyApplicationPage({
         </dl>
       </div>
 
-      <p className="hint" style={{ marginTop: 16 }}>
+      <p className="hint" style={{ marginTop: 18 }}>
         Need to change something? Reply to your confirmation email and we will
         update it for you. Applications cannot be edited after submission.
       </p>

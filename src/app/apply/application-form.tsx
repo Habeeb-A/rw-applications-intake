@@ -54,7 +54,8 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
 
   return (
     <form action={formAction} className="card" noValidate>
-      {state.formError ? <div className="notice error">{state.formError}</div> : null}
+      <p className="card-label">Your details</p>
+      {state.formError ? <div className="notice error"><p>{state.formError}</p></div> : null}
 
       <div className="field">
         <label htmlFor="full_name">Full name</label>
@@ -150,15 +151,8 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
         ) : null}
       </div>
 
-      <fieldset
-        className="field"
-        style={{ border: "none", padding: 0, margin: "0 0 18px" }}
-      >
-        <legend
-          style={{ padding: 0, fontWeight: 550, fontSize: 13, marginBottom: 6 }}
-        >
-          Availability
-        </legend>
+      <fieldset>
+        <legend>Availability</legend>
         <div className="radio-group">
           {AVAILABILITY_VALUES.map((value) => (
             <label className="radio-option" key={value} htmlFor={`availability-${value}`}>

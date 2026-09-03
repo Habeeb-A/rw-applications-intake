@@ -2,13 +2,22 @@ import { redirect } from "next/navigation";
 
 import { getSessionContext } from "@/lib/auth";
 
-import { LoginForm } from "./login-form";
+import { LoginForm, type DemoAccount } from "./login-form";
 
 /**
- * `next` is a caller-supplied redirect target, so it is validated before use.
- * Accepting it unchecked would make this an open redirect: a link to
- * /login?next=https://evil.example would send a freshly authenticated user
- * straight off-site. Only same-origin absolute paths are allowed through.
+ * The accounts the seed script creates. Listed here so a reviewer can sign in
+ * as either role in one click, which is what deliverable 1 actually needs.
+ */
+const DEMO_ACCOUNTS: DemoAccount[] = [
+  { role: "Applicant", name: "Amara Nwosu", email: "applicant.one@cbtlab.test" },
+  { role: "Staff reviewer", name: "Reviewer One", email: "reviewer.one@cbtlab.test" },
+];
+
+/**
+ * `next` is caller-supplied, so it is validated before use. Accepting it
+ * unchecked makes this an open redirect: /login?next=https://evil.example would
+ * send a freshly authenticated user straight off-site, with their session
+ * already minted. Only same-origin absolute paths pass.
  */
 function safeNextPath(raw: string | undefined): string {
   if (!raw) return "/";
@@ -26,26 +35,43 @@ export default async function LoginPage({
   const params = await searchParams;
   const nextPath = safeNextPath(params.next);
 
-  // Already signed in? Send them where they were going.
   const session = await getSessionContext();
   if (session) redirect(nextPath);
 
   return (
-    <main className="narrow">
-      <h1>Sign in</h1>
-      <p className="page-intro">
-        Applications for the CBT Lab programme. You need to be signed in to apply
-        or to view an application you have already submitted.
-      </p>
-
-      {params.error === "auth_failed" ? (
-        <div className="notice error">
-          That sign-in link did not work. It may have already been used or expired
-          — links are single-use and valid for one hour. Please request a new one.
+    <main className="auth-page">
+      <div className="auth-card">
+        <div className="auth-brand">
+          <span className="brand-mark" aria-hidden="true">CB</span>
+          <span>
+            <span className="brand-name">CBT Lab</span>
+            <span className="brand-sub">Applications intake</span>
+          </span>
         </div>
-      ) : null}
 
-      <LoginForm nextPath={nextPath} />
+        <h1>Choose a demo account</h1>
+        <p className="page-intro" style={{ marginBottom: 0 }}>
+          Each account is a real Supabase Auth user. What it can read and change
+          is decided by Row Level Security policies in the database, not by this
+          page.
+        </p>
+
+        {params.error === "auth_failed" ? (
+          <div className="notice error" style={{ marginTop: 24, marginBottom: 0 }}>
+            <p>
+              That sign-in link did not work. Links are single-use and valid for
+              one hour, so it may have already been used or expired. Please
+              request a new one.
+            </p>
+          </div>
+        ) : null}
+
+        <LoginForm
+          nextPath={nextPath}
+          demoAccounts={DEMO_ACCOUNTS}
+          demoPassword={process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? null}
+        />
+      </div>
     </main>
   );
 }
