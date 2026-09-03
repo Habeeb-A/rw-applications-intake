@@ -19,7 +19,9 @@ Next.js 15 (App Router) · TypeScript · Supabase (Postgres + RLS) · Netlify
 | Applicant (has a pending application) | `applicant.one@cbtlab.test` | *(shared separately)* |
 | Applicant (has a pending application) | `applicant.two@cbtlab.test` | *(same)* |
 
-Sign-in offers both a magic link and email + password. Magic link is the flow a real applicant would use; passwords exist so that these test accounts can be used without access to an inbox.
+The login page has an Applicant panel and a Staff panel. Applicants can log in with a password, create an account, request a sign-in link, or reset a forgotten password; staff log in with a password and can reset it. Passwords exist so these test accounts are usable without access to an inbox, which a magic link would require.
+
+The panel toggle is presentation only. It chooses which form renders; it grants nothing. The role still comes from `profiles` after authentication, so an applicant signing in through the Staff panel gets an applicant's session and is turned away from the dashboard.
 
 ---
 
@@ -30,7 +32,7 @@ Verified end to end against a brand-new Supabase project.
 ### 1. Clone and install
 
 ```bash
-git clone <repo-url> && cd rw-applications-intake
+git clone <repo-url> && cd rw-applications
 npm install
 ```
 
@@ -54,7 +56,6 @@ Fill in from **Project Settings → API**:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `anon` `public` key |
 | `SUPABASE_SERVICE_ROLE_KEY` | `service_role` key — **local only**, never deployed |
 | `SEED_STAFF_PASSWORD` / `SEED_APPLICANT_PASSWORD` | any values you choose |
-| `NEXT_PUBLIC_DEMO_PASSWORD` | optional; set it to the same value to make the login page's demo cards one-click |
 
 The service-role key carries `BYPASSRLS`. It is used only by `scripts/seed.ts` and `scripts/verify-acceptance.ts`, both of which run on your machine. Do not add it to Netlify.
 
@@ -75,7 +76,9 @@ npx supabase db push
 
 ### 5. Enable email auth
 
-**Authentication → Providers → Email**: enable it, and enable "Confirm email".
+**Authentication → Providers → Email**: enable it.
+
+**Turn "Confirm email" off.** The login page offers applicants a sign-up form, and with confirmation on `signUp` returns no session — the applicant is told to check an inbox instead of going to the form. That is a real security trade: it means an unverified address can create an account. It is taken deliberately here because this is a trial on synthetic data whose reviewers need the flow to work without waiting on email, and because Supabase's built-in mail service is rate-limited hard enough that confirmation is unreliable anyway. A build serving real applicants should turn it back on and keep the "check your inbox" branch, which is already written and is what runs when confirmation is enabled.
 
 **Authentication → URL Configuration**: set Site URL to your deployed URL (or `http://localhost:3000` while developing) and add both of these to Redirect URLs:
 
@@ -83,6 +86,9 @@ npx supabase db push
 http://localhost:3000/auth/callback
 https://<your-site>.netlify.app/auth/callback
 ```
+
+Password resets return through the same `/auth/callback` route, so no extra
+entry is needed for them.
 
 A magic link whose redirect target is not on this list fails silently — it lands on the site root with no session and no error, which is a confusing five minutes if you don't know to look here.
 
@@ -135,21 +141,25 @@ contractor's build, and that the design work carries over if it does.
 
 Three deliberate departures:
 
-- **No role switcher.** The click-dummy has a P / F / S control because it keeps
-  its role in local storage, where switching is free. Here the role lives in
-  `profiles` and every policy reads it, so a switcher would either be a lie or a
-  privilege-escalation hole. The rail shows the role as a badge instead.
+- **No role switcher *inside the app*.** The click-dummy has a P / F / S control
+  because it keeps its role in local storage, where switching is free. Here the
+  role lives in `profiles` and every policy reads it, so a switcher would either
+  be a lie or a privilege-escalation hole. The rail shows the role as a badge
+  instead. The Applicant/Staff toggle on the login page is a different thing and
+  is safe: it picks which sign-in form renders, before anyone is authenticated,
+  and the role is still read from the database afterwards.
 - **No webfont.** `next/font/google` fetches the font at *build* time, which
   makes every deploy fail-able for a reason unrelated to this code. On a
   deployment target the brief already flags as fiddly that is a bad trade, so
   the app uses a geometric system stack. A real build would self-host the woff2
   in `/public`.
-- **One-click demo accounts on the login page**, mirroring the click-dummy's
-  "choose a demo account" pattern, because deliverable 1 asks for test
-  credentials and a reviewer should not have to retype them. The cards fill in
-  the password only when `NEXT_PUBLIC_DEMO_PASSWORD` is set — off unless
-  switched on, and not something that would exist in a build serving real
-  applicants.
+- **No demo-account cards.** An earlier version of this page offered two
+  one-click cards carrying invented names and addresses, mirroring the
+  click-dummy's "choose a demo account" pattern. They are gone: credentials are
+  handed to reviewers directly, and a login screen that ships fabricated
+  identities reads badly on a product that will hold real applicant records.
+  What replaces them is a panel toggle, which is a signpost rather than a
+  permission — see the note at the top of `src/app/login/login-form.tsx`.
 
 ---
 
