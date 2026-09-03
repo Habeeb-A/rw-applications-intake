@@ -49,6 +49,20 @@ function initials(email: string): string {
  * it, so a switcher would either be a lie or a privilege-escalation hole. The
  * role is shown as a badge instead.
  */
+/**
+ * `suppressHydrationWarning` on <html>, and only on <html>.
+ *
+ * Browser extensions write their own attributes onto the <html> element before
+ * React hydrates -- QuillBot's `data-qb-installed` is the one that turned up
+ * here -- so the DOM stops matching the markup the server sent and React
+ * reports the difference. It is the extension's edit, not ours, and it is not
+ * reproducible on a machine without that extension.
+ *
+ * The prop suppresses the warning for this element's own attributes, one level
+ * deep. It does not reach any child, so a genuine hydration mismatch inside the
+ * app still surfaces exactly as it would have. Applying it higher, or wider,
+ * would be hiding our own bugs instead of someone else's.
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -57,7 +71,7 @@ export default async function RootLayout({
   // Signed out (login, auth callback): render the page bare, no rail.
   if (!session) {
     return (
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body>{children}</body>
       </html>
     );
@@ -66,7 +80,7 @@ export default async function RootLayout({
   const isStaff = session.role === "staff";
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
         <Shell
           rail={
