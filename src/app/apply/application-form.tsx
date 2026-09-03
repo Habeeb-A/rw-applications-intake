@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
+import { COUNTRIES } from "@/lib/countries";
 import { AVAILABILITY_LABELS } from "@/lib/database.types";
 import { AVAILABILITY_VALUES } from "@/lib/validation";
 
@@ -117,16 +118,19 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
 
       <div className="field">
         <label htmlFor="country">Country</label>
-        <input
+        <select
           id="country"
           name="country"
-          type="text"
-          maxLength={80}
           required
           defaultValue={submitted.country ?? ""}
           aria-invalid={Boolean(fieldErrors.country)}
           aria-describedby={fieldErrors.country ? "country-error" : undefined}
-        />
+        >
+          <option value="" disabled>Select your country…</option>
+          {COUNTRIES.map((country) => (
+            <option key={country} value={country}>{country}</option>
+          ))}
+        </select>
         {fieldErrors.country ? (
           <p className="field-error" id="country-error">{fieldErrors.country}</p>
         ) : null}

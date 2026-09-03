@@ -24,6 +24,11 @@ export default async function Home() {
     .from("applications")
     .select("id")
     .eq("applicant_id", session.userId)
+    // Scoped to application_type as well as owner. Uniqueness is per
+    // (applicant_id, application_type), so one person may legitimately own a
+    // participant row and a facilitator row; maybeSingle() errors on two rows
+    // and yields null, which would read here as "no application at all".
+    .eq("application_type", "participant")
     .maybeSingle();
 
   redirect(application ? "/application" : "/apply");
