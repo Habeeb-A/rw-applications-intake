@@ -659,6 +659,10 @@ dl.detail dd { margin: 0; font-size: 15px; white-space: pre-wrap; }
 
 .auth-fields { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end; }
 .auth-fields .field { margin-bottom: 0; }
+/* The magic-link form has one input rather than two. A class, not an inline
+   style: an inline style outranks the max-width rule below on specificity, so
+   the row stayed two-up on a phone and squeezed the email field to nothing. */
+.auth-fields-single { grid-template-columns: 1fr auto; }
 
 @media (max-width: 620px) {
   .auth-fields { grid-template-columns: 1fr; }

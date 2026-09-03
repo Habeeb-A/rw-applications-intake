@@ -13,23 +13,37 @@ import { submitApplication, type ApplyState } from "./actions";
  * timezone package for a trial. `Intl.supportedValuesOf("timeZone")` would give
  * the full IANA list in one line; noted in the README as a with-more-time item,
  * since the full list is ~400 entries and needs a combobox rather than a select.
+ *
+ * It is a superset of every zone `scripts/seed.ts` uses. That is worth keeping
+ * true: a seeded applicant whose zone the form cannot offer is a row a reviewer
+ * sees but no applicant could have produced, which reads as a data bug during a
+ * demo and costs more to explain than the nine extra lines cost to carry.
  */
 const TIME_ZONES = [
+  "Africa/Accra",
+  "Africa/Cairo",
+  "Africa/Casablanca",
+  "Africa/Johannesburg",
   "Africa/Lagos",
   "Africa/Nairobi",
-  "Africa/Johannesburg",
-  "Europe/London",
-  "Europe/Berlin",
-  "Europe/Madrid",
-  "Europe/Warsaw",
+  "America/Chicago",
+  "America/Los_Angeles",
+  "America/New_York",
+  "America/Sao_Paulo",
+  "America/Toronto",
   "Asia/Kolkata",
   "Asia/Manila",
   "Asia/Singapore",
-  "America/New_York",
-  "America/Chicago",
-  "America/Los_Angeles",
-  "America/Sao_Paulo",
+  "Asia/Tokyo",
   "Australia/Sydney",
+  "Europe/Amsterdam",
+  "Europe/Berlin",
+  "Europe/London",
+  "Europe/Madrid",
+  "Europe/Paris",
+  "Europe/Stockholm",
+  "Europe/Vienna",
+  "Europe/Warsaw",
   "UTC",
 ];
 
@@ -52,6 +66,12 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
 
   const fieldErrors = state.fieldErrors ?? {};
 
+  // React resets an uncontrolled form after the action settles, back to each
+  // input's defaultValue. So the way to keep a rejected submission on screen is
+  // to make the previous answers *be* the defaults, rather than to fight the
+  // reset. Empty on first render; the applicant's own words on a retry.
+  const submitted = state.values ?? {};
+
   return (
     <form action={formAction} className="card" noValidate>
       <p className="card-label">Your details</p>
@@ -65,6 +85,7 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
           type="text"
           maxLength={120}
           required
+          defaultValue={submitted.full_name ?? ""}
           aria-invalid={Boolean(fieldErrors.full_name)}
           aria-describedby={fieldErrors.full_name ? "full_name-error" : undefined}
         />
@@ -81,7 +102,7 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
           type="email"
           maxLength={254}
           required
-          defaultValue={defaultEmail}
+          defaultValue={submitted.email ?? defaultEmail}
           aria-invalid={Boolean(fieldErrors.email)}
           aria-describedby={fieldErrors.email ? "email-error" : "email-hint"}
         />
@@ -102,6 +123,7 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
           type="text"
           maxLength={80}
           required
+          defaultValue={submitted.country ?? ""}
           aria-invalid={Boolean(fieldErrors.country)}
           aria-describedby={fieldErrors.country ? "country-error" : undefined}
         />
@@ -116,13 +138,14 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
           id="time_zone"
           name="time_zone"
           required
-          defaultValue=""
+          defaultValue={submitted.time_zone ?? ""}
           aria-invalid={Boolean(fieldErrors.time_zone)}
           aria-describedby={fieldErrors.time_zone ? "time_zone-error" : "time_zone-hint"}
         >
           <option value="" disabled>Select a time zone…</option>
+          {/* replaceAll, not replace: "America/Port_of_Spain" has three. */}
           {TIME_ZONES.map((zone) => (
-            <option key={zone} value={zone}>{zone.replace("_", " ")}</option>
+            <option key={zone} value={zone}>{zone.replaceAll("_", " ")}</option>
           ))}
         </select>
         <p className="hint" id="time_zone-hint">
@@ -140,6 +163,7 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
           name="motivation"
           maxLength={4000}
           required
+          defaultValue={submitted.motivation ?? ""}
           aria-invalid={Boolean(fieldErrors.motivation)}
           aria-describedby={fieldErrors.motivation ? "motivation-error" : "motivation-hint"}
         />
@@ -162,6 +186,7 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
                 name="availability"
                 value={value}
                 required
+                defaultChecked={submitted.availability === value}
               />
               {AVAILABILITY_LABELS[value]}
             </label>

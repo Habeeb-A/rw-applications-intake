@@ -162,7 +162,11 @@ export function LoginForm({
         </form>
       ) : (
         <form onSubmit={handleMagicLink}>
-          <div className="auth-fields" style={{ gridTemplateColumns: "1fr auto" }}>
+          {/* A class, not an inline style. An inline grid-template-columns wins
+              over the max-width:620px rule in globals.css, which is how this
+              two-field row stayed side by side on a phone and squeezed the
+              email input to nothing. */}
+          <div className="auth-fields auth-fields-single">
             <div className="field">
               <label htmlFor="magic-email">Email</label>
               <input

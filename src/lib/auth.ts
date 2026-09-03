@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 import type { AppRole } from "@/lib/database.types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -27,8 +28,16 @@ export interface SessionContext {
  *
  *  - This function returns null rather than throwing, so callers decide what a
  *    missing session means for their page.
+ *
+ * Wrapped in React's `cache()` so the work is done once per request rather than
+ * once per caller. The root layout resolves the session to render the rail, and
+ * then the page resolves it again to decide what to show — without this, every
+ * page load costs two getUser() round trips to the Auth server and two
+ * `profiles` reads for one user's one identity. `cache()` is per-request and
+ * per-render, so it dedupes those without ever holding a session across
+ * requests or across users.
  */
-export async function getSessionContext(): Promise<SessionContext | null> {
+export const getSessionContext = cache(async function getSessionContext(): Promise<SessionContext | null> {
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -59,7 +68,7 @@ export async function getSessionContext(): Promise<SessionContext | null> {
     email: profile.email,
     role: profile.role,
   };
-}
+});
 
 /** For pages that need any signed-in user. */
 export async function requireUser(nextPath?: string): Promise<SessionContext> {

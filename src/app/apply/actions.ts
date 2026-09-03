@@ -5,11 +5,48 @@ import { redirect } from "next/navigation";
 
 import { getSessionContext } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { parseApplicationForm, type FieldErrors } from "@/lib/validation";
+import {
+  parseApplicationForm,
+  type ApplicationFormValues,
+  type FieldErrors,
+} from "@/lib/validation";
+
+/** The raw strings the user submitted, echoed back so the form can re-render them. */
+export type SubmittedValues = Partial<Record<keyof ApplicationFormValues, string>>;
 
 export interface ApplyState {
   formError?: string;
   fieldErrors?: FieldErrors;
+  /**
+   * Present whenever the action returns instead of redirecting.
+   *
+   * React resets an uncontrolled `<form action={…}>` after the action settles —
+   * it calls requestFormReset on every submit, not only on a successful one. So
+   * returning field errors alone would hand the applicant a blank form and a
+   * list of complaints about answers they can no longer see, with the 4000-
+   * character motivation the most expensive thing to lose. Echoing the values
+   * back and rendering them as defaultValue means the reset lands on what they
+   * typed rather than on empty.
+   */
+  values?: SubmittedValues;
+}
+
+const FORM_FIELDS = [
+  "full_name",
+  "email",
+  "country",
+  "time_zone",
+  "motivation",
+  "availability",
+] as const;
+
+function submittedValues(formData: FormData): SubmittedValues {
+  const values: SubmittedValues = {};
+  for (const field of FORM_FIELDS) {
+    const value = formData.get(field);
+    if (typeof value === "string") values[field] = value;
+  }
+  return values;
 }
 
 /**
@@ -41,15 +78,21 @@ export async function submitApplication(
     redirect("/login?next=/apply");
   }
 
+  const values = submittedValues(formData);
+
   const parsed = parseApplicationForm(formData);
   if (!parsed.success) {
-    return { fieldErrors: parsed.errors };
+    return { fieldErrors: parsed.errors, values };
   }
 
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase.from("applications").insert({
     applicant_id: session.userId, // from the session, never from the form
+    // Stated rather than left to the column default, so that this and the
+    // application_type filter on the pages that read the row are visibly the
+    // same decision. Uniqueness is per (applicant_id, application_type).
+    application_type: "participant",
     full_name: parsed.data.full_name,
     email: parsed.data.email,
     country: parsed.data.country,
@@ -74,12 +117,14 @@ export async function submitApplication(
       return {
         formError:
           "One of your answers was rejected by the database. Please check the lengths of your answers and try again.",
+        values,
       };
     }
 
     console.error("Failed to insert application", error);
     return {
       formError: "Something went wrong saving your application. Please try again.",
+      values,
     };
   }
 
