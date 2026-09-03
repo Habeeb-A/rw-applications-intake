@@ -2,16 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getSessionContext } from "@/lib/auth";
 
-import { LoginForm, type DemoAccount } from "./login-form";
-
-/**
- * The accounts the seed script creates. Listed here so a reviewer can sign in
- * as either role in one click, which is what deliverable 1 actually needs.
- */
-const DEMO_ACCOUNTS: DemoAccount[] = [
-  { role: "Applicant", name: "Amara Nwosu", email: "applicant.one@cbtlab.test" },
-  { role: "Staff reviewer", name: "Reviewer One", email: "reviewer.one@cbtlab.test" },
-];
+import { LoginForm } from "./login-form";
 
 /**
  * `next` is caller-supplied, so it is validated before use. Accepting it
@@ -40,7 +31,7 @@ export default async function LoginPage({
 
   return (
     <main className="auth-page">
-      <div className="auth-card">
+      <div className="auth-shell">
         <div className="auth-brand">
           <span className="brand-mark" aria-hidden="true">CB</span>
           <span>
@@ -49,28 +40,26 @@ export default async function LoginPage({
           </span>
         </div>
 
-        <h1>Choose a demo account</h1>
-        <p className="page-intro" style={{ marginBottom: 0 }}>
-          Each account is a real Supabase Auth user. What it can read and change
-          is decided by Row Level Security policies in the database, not by this
-          page.
+        <h1>Choose your account</h1>
+        <p className="page-intro">
+          The CBT Lab is a 12-week peer-facilitated group programme: nine
+          90-minute sessions in a group of five or six, led by a trained
+          facilitator. Applicants sign in here to apply and to follow their
+          application; the programme team signs in to review the queue.
         </p>
 
         {params.error === "auth_failed" ? (
-          <div className="notice error" style={{ marginTop: 24, marginBottom: 0 }}>
+          <div className="notice error">
             <p>
-              That sign-in link did not work. Links are single-use and valid for
-              one hour, so it may have already been used or expired. Please
-              request a new one.
+              That sign-in link did not work. Links are single-use and expire,
+              so it may already have been used — some mail apps open links to
+              preview them, which is enough to spend it. Request a new one, or
+              log in with a password instead.
             </p>
           </div>
         ) : null}
 
-        <LoginForm
-          nextPath={nextPath}
-          demoAccounts={DEMO_ACCOUNTS}
-          demoPassword={process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? null}
-        />
+        <LoginForm nextPath={nextPath} />
       </div>
     </main>
   );

@@ -59,7 +59,13 @@ function SubmitButton() {
   );
 }
 
-export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
+export function ApplicationForm({
+  defaultEmail,
+  defaultFullName,
+}: {
+  defaultEmail: string;
+  defaultFullName: string;
+}) {
   const [state, formAction] = useActionState<ApplyState, FormData>(
     submitApplication,
     {},
@@ -86,7 +92,7 @@ export function ApplicationForm({ defaultEmail }: { defaultEmail: string }) {
           type="text"
           maxLength={120}
           required
-          defaultValue={submitted.full_name ?? ""}
+          defaultValue={submitted.full_name ?? defaultFullName}
           aria-invalid={Boolean(fieldErrors.full_name)}
           aria-describedby={fieldErrors.full_name ? "full_name-error" : undefined}
         />

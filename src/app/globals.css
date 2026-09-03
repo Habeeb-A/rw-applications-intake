@@ -433,7 +433,7 @@ input::placeholder, textarea::placeholder { color: var(--text-soft); }
 textarea { min-height: 140px; resize: vertical; line-height: 1.55; }
 
 input:focus-visible, select:focus-visible, textarea:focus-visible,
-button:focus-visible, a:focus-visible, .demo-card:focus-visible {
+button:focus-visible, a:focus-visible, .audience-option:focus-visible {
   outline: 2px solid var(--teal-bright);
   outline-offset: 2px;
 }
@@ -609,64 +609,88 @@ dl.detail dd { margin: 0; font-size: 15px; white-space: pre-wrap; }
   background: var(--paper);
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 720px;
+.auth-shell { width: 100%; max-width: 460px; }
+
+.auth-brand { display: flex; align-items: center; gap: 13px; margin-bottom: 26px; }
+
+.auth-shell h1 { font-size: clamp(25px, 4.6vw, 31px); margin-bottom: 10px; }
+.auth-shell .page-intro { font-size: 14.5px; margin-bottom: 22px; }
+
+/* Audience toggle: a pill split in two. Presentational only — see the note at
+   the top of login-form.tsx. It picks a panel, never a permission. */
+.audience-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.audience-option {
+  background: transparent;
+  color: var(--teal);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 650;
+}
+.audience-option:hover { background: var(--surface); color: var(--teal); }
+.audience-option.is-active { background: var(--teal); color: #fff; }
+.audience-option.is-active:hover { background: var(--teal-hover); }
+
+.login-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  padding: 38px 40px 40px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
   box-shadow: var(--shadow-md);
 }
 
-@media (max-width: 620px) { .auth-card { padding: 28px 22px 30px; } }
-
-.auth-brand { display: flex; align-items: center; gap: 13px; margin-bottom: 28px; }
-
-.auth-card h1 { font-size: clamp(26px, 4.6vw, 34px); margin-bottom: 10px; }
-
-.demo-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 14px;
-  margin: 24px 0 26px;
+.login-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--teal);
+  color: #fff;
+  padding: 14px 22px;
 }
 
-.demo-card {
-  text-align: left;
-  background: var(--hero-bg);
-  border: 1px solid transparent;
-  border-radius: var(--r-md);
-  padding: 18px 19px 20px;
-  cursor: pointer;
-  display: block;
-  color: var(--hero-text);
-  font: inherit;
-}
-.demo-card:hover { border-color: var(--lime); background: var(--hero-bg-2); }
-.demo-card[aria-pressed="true"] { border-color: var(--lime); }
-
-.demo-role {
-  font-size: 10.5px; font-weight: 700;
+.login-card-title {
+  font-size: 12px; font-weight: 700;
   letter-spacing: 0.13em; text-transform: uppercase;
-  color: var(--lime); display: block; margin-bottom: 9px;
 }
-.demo-name {
-  font-size: 17px; font-weight: 700; letter-spacing: -0.02em;
-  display: block; margin-bottom: 5px; color: var(--hero-text);
+.login-card-who {
+  font-size: 11.5px; font-weight: 600;
+  opacity: 0.85;
 }
-.demo-mail { font-size: 12.5px; color: var(--hero-soft); display: block; word-break: break-all; }
 
-.auth-fields { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end; }
-.auth-fields .field { margin-bottom: 0; }
-/* The magic-link form has one input rather than two. A class, not an inline
-   style: an inline style outranks the max-width rule below on specificity, so
-   the row stayed two-up on a phone and squeezed the email field to nothing. */
-.auth-fields-single { grid-template-columns: 1fr auto; }
+.login-card-body { padding: 24px 22px 22px; }
+
+.login-blurb {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  color: var(--text-mid);
+}
+
+.login-submit { width: 100%; margin-top: 4px; }
+
+.login-alts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
 
 @media (max-width: 620px) {
-  .auth-fields { grid-template-columns: 1fr; }
-  .auth-fields button { width: 100%; }
+  .login-card-body { padding: 20px 18px 18px; }
+  .login-card-head { padding: 13px 18px; }
 }
 
 .muted { color: var(--text-soft); }

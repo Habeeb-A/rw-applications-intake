@@ -8,6 +8,12 @@ export interface SessionContext {
   userId: string;
   email: string;
   role: AppRole;
+  /**
+   * The name given at sign-up, read from the auth user's metadata.
+   * Convenience only: it pre-fills the application form. Nothing authorises
+   * off it, and it is null for accounts created any other way.
+   */
+  fullName: string | null;
 }
 
 /**
@@ -63,10 +69,16 @@ export const getSessionContext = cache(async function getSessionContext(): Promi
     return null;
   }
 
+  const metadataName = user.user_metadata?.full_name;
+
   return {
     userId: profile.id,
     email: profile.email,
     role: profile.role,
+    fullName:
+      typeof metadataName === "string" && metadataName.trim() !== ""
+        ? metadataName
+        : null,
   };
 });
 

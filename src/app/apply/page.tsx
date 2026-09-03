@@ -49,7 +49,10 @@ export default async function ApplyPage() {
         </div>
       </div>
 
-      <ApplicationForm defaultEmail={session.email} />
+      <ApplicationForm
+        defaultEmail={session.email}
+        defaultFullName={session.fullName ?? ""}
+      />
     </main>
   );
 }
