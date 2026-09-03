@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { getSessionContext } from "@/lib/auth";
 
+import { Shell } from "./shell";
+
 import "./globals.css";
 
 /**
@@ -66,8 +68,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="shell">
-          <aside className="rail">
+        <Shell
+          rail={
+            <>
             <a className="brand" href="/">
               <span className="brand-mark" aria-hidden="true">CB</span>
               <span>
@@ -119,10 +122,11 @@ export default async function RootLayout({
                 <button type="submit" className="signout-btn">Sign out</button>
               </form>
             </div>
-          </aside>
-
+            </>
+          }
+        >
           {children}
-        </div>
+        </Shell>
       </body>
     </html>
   );

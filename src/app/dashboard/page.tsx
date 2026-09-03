@@ -1,14 +1,14 @@
 import { requireStaff } from "@/lib/auth";
 import {
   APPLICATION_STATUSES,
-  AVAILABILITY_LABELS,
   STATUS_LABELS,
-  type ApplicationRow,
+  // Aliased: the row *component* below is also called ApplicationRow.
+  type ApplicationRow as ApplicationRecord,
   type ApplicationStatus,
 } from "@/lib/database.types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-import { StatusSelect } from "./status-select";
+import { ApplicationRow } from "./application-row";
 
 /**
  * Never serve this from cache. A reviewer queue that shows a decision a
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
   if (applicationsResult.error) console.error("Failed to load applications", applicationsResult.error);
   if (eventsResult.error) console.error("Failed to load status events", eventsResult.error);
 
-  const applications = (applicationsResult.data ?? []) as ApplicationRow[];
+  const applications = (applicationsResult.data ?? []) as ApplicationRecord[];
   const events = (eventsResult.data ?? []) as unknown as StatusEventWithActor[];
 
   const counts = APPLICATION_STATUSES.reduce<Record<ApplicationStatus, number>>(
@@ -143,27 +143,11 @@ export default async function DashboardPage() {
             </thead>
             <tbody>
               {applications.map((application) => (
-                <tr key={application.id}>
-                  <td>
-                    <div className="person-name">{application.full_name}</div>
-                    <div className="person-mail">{application.email}</div>
-                  </td>
-                  <td className="nowrap">{application.country}</td>
-                  <td className="nowrap">{application.time_zone}</td>
-                  <td className="nowrap">{AVAILABILITY_LABELS[application.availability]}</td>
-                  <td className="motivation">
-                    {application.motivation.length > 140
-                      ? `${application.motivation.slice(0, 140).trimEnd()}…`
-                      : application.motivation}
-                  </td>
-                  <td className="nowrap">{formatDate(application.created_at)}</td>
-                  <td>
-                    <StatusSelect
-                      applicationId={application.id}
-                      currentStatus={application.status}
-                    />
-                  </td>
-                </tr>
+                <ApplicationRow
+                  key={application.id}
+                  application={application}
+                  submittedLabel={formatDate(application.created_at)}
+                />
               ))}
             </tbody>
           </table>
